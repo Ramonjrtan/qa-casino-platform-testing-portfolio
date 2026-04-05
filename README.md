@@ -82,8 +82,3 @@ Key components:
 - Strong negative coverage for money, access, and compliance rules
 - Recruiter-friendly structure that still looks execution-ready
 
-## 🚀 Suggested Next Upgrades
-- Add executed evidence screenshots
-- Add defect log exports
-- Add Playwright or Selenium smoke coverage later
-- Add CI-ready Newman execution for the Postman collection
