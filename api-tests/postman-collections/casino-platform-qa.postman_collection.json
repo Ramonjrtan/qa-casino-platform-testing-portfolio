@@ -1,0 +1,446 @@
+{
+  "info": {
+    "_postman_id": "9d8c2f1a-casino-qa-portfolio",
+    "name": "Casino Platform QA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Simulated Postman collection for wallet, betting, and compliance QA flows."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.casino-platform.test"
+    },
+    {
+      "key": "authToken",
+      "value": ""
+    },
+    {
+      "key": "playerId",
+      "value": "player-1001"
+    },
+    {
+      "key": "walletId",
+      "value": "wallet-1001"
+    },
+    {
+      "key": "betId",
+      "value": "bet-9001"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"player01\",\n  \"password\": \"Demo123!\",\n  \"otp\": \"123456\",\n  \"jurisdiction\": \"NL\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "var data = pm.response.json();",
+                  "if (data.accessToken) { pm.collectionVariables.set('authToken', data.accessToken); }",
+                  "if (data.playerId) { pm.collectionVariables.set('playerId', data.playerId); }",
+                  "if (data.walletId) { pm.collectionVariables.set('walletId', data.walletId); }"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Wallet APIs",
+      "item": [
+        {
+          "name": "Get Wallet Balance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/wallets/{{walletId}}/balance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "wallets",
+                "{{walletId}}",
+                "balance"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Balance returned', function () { pm.expect(pm.response.json()).to.have.property('availableBalance'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Deposit Funds",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"playerId\": \"player-1001\",\n  \"amount\": 50.0,\n  \"currency\": \"EUR\",\n  \"paymentMethodId\": \"pm-card-001\",\n  \"requestId\": \"dep-req-1001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/wallets/deposits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "wallets",
+                "deposits"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Deposit created', function () { pm.expect([200,201]).to.include(pm.response.code); });",
+                  "pm.test('Deposit response has status', function () { pm.expect(pm.response.json()).to.have.property('status'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Withdraw Funds",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"playerId\": \"player-1001\",\n  \"amount\": 40.0,\n  \"currency\": \"EUR\",\n  \"payoutMethodId\": \"bank-001\",\n  \"requestId\": \"wdr-req-1001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/wallets/withdrawals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "wallets",
+                "withdrawals"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Withdrawal accepted or queued', function () { pm.expect([200,201,202]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Post Refund / Adjustment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"playerId\": \"player-1001\",\n  \"type\": \"REFUND\",\n  \"amount\": 10.0,\n  \"reasonCode\": \"VOID_ROUND\",\n  \"operatorId\": \"qa-admin-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/wallets/adjustments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "wallets",
+                "adjustments"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Betting APIs",
+      "item": [
+        {
+          "name": "Place Bet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"playerId\": \"player-1001\",\n  \"gameId\": \"slot-001\",\n  \"stake\": 5.0,\n  \"currency\": \"EUR\",\n  \"roundId\": \"round-9001\",\n  \"requestId\": \"bet-req-9001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/bets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bets"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Bet accepted', function () { pm.expect([200,201]).to.include(pm.response.code); });",
+                  "var data = pm.response.json(); if (data.betId) { pm.collectionVariables.set('betId', data.betId); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Settle Bet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"betId\": \"bet-9001\",\n  \"result\": \"WIN\",\n  \"payout\": 12.5,\n  \"eventId\": \"settle-evt-9001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/bets/{{betId}}/settlement",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bets",
+                "{{betId}}",
+                "settlement"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Void Bet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"betId\": \"bet-9001\",\n  \"reason\": \"ROUND_CANCELLED\",\n  \"eventId\": \"void-evt-9001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/bets/{{betId}}/void",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bets",
+                "{{betId}}",
+                "void"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Compliance APIs",
+      "item": [
+        {
+          "name": "Set Deposit Limit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"playerId\": \"player-1001\",\n  \"period\": \"DAILY\",\n  \"amount\": 100.0,\n  \"effectiveFrom\": \"2026-04-05T00:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/compliance/limits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "compliance",
+                "limits"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Self Exclude Player",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"playerId\": \"player-1001\",\n  \"period\": \"6_MONTHS\",\n  \"reason\": \"PLAYER_REQUEST\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/compliance/self-exclusions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "compliance",
+                "self-exclusions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Query Audit Logs",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": \"2026-04-01T00:00:00Z\",\n  \"to\": \"2026-04-05T23:59:59Z\",\n  \"playerId\": \"player-1001\",\n  \"eventType\": \"TRANSACTION\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/compliance/audit/query",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "compliance",
+                "audit",
+                "query"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

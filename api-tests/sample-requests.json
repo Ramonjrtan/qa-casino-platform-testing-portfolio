@@ -1,0 +1,147 @@
+{
+  "auth": {
+    "login": {
+      "request": {
+        "username": "player01",
+        "password": "Demo123!",
+        "otp": "123456",
+        "jurisdiction": "NL"
+      },
+      "response_example": {
+        "accessToken": "{{authToken}}",
+        "playerId": "player-1001",
+        "walletId": "wallet-1001",
+        "status": "ACTIVE"
+      }
+    }
+  },
+  "wallet": {
+    "deposit": {
+      "request": {
+        "playerId": "player-1001",
+        "amount": 50.0,
+        "currency": "EUR",
+        "paymentMethodId": "pm-card-001",
+        "requestId": "dep-req-1001"
+      },
+      "response_example": {
+        "transactionId": "txn-dep-1001",
+        "status": "COMPLETED",
+        "newBalance": 150.0
+      }
+    },
+    "withdraw": {
+      "request": {
+        "playerId": "player-1001",
+        "amount": 40.0,
+        "currency": "EUR",
+        "payoutMethodId": "bank-001",
+        "requestId": "wdr-req-1001"
+      },
+      "response_example": {
+        "transactionId": "txn-wdr-1001",
+        "status": "PENDING",
+        "availableBalance": 110.0
+      }
+    },
+    "adjustment": {
+      "request": {
+        "playerId": "player-1001",
+        "type": "REFUND",
+        "amount": 10.0,
+        "reasonCode": "VOID_ROUND",
+        "operatorId": "qa-admin-01"
+      },
+      "response_example": {
+        "transactionId": "txn-adj-1001",
+        "status": "POSTED",
+        "newBalance": 120.0
+      }
+    }
+  },
+  "betting": {
+    "placeBet": {
+      "request": {
+        "playerId": "player-1001",
+        "gameId": "slot-001",
+        "stake": 5.0,
+        "currency": "EUR",
+        "roundId": "round-9001",
+        "requestId": "bet-req-9001"
+      },
+      "response_example": {
+        "betId": "bet-9001",
+        "status": "ACCEPTED",
+        "walletBalance": 115.0
+      }
+    },
+    "settleBet": {
+      "request": {
+        "betId": "bet-9001",
+        "result": "WIN",
+        "payout": 12.5,
+        "eventId": "settle-evt-9001"
+      },
+      "response_example": {
+        "betId": "bet-9001",
+        "status": "SETTLED",
+        "walletBalance": 127.5
+      }
+    },
+    "voidBet": {
+      "request": {
+        "betId": "bet-9001",
+        "reason": "ROUND_CANCELLED",
+        "eventId": "void-evt-9001"
+      },
+      "response_example": {
+        "betId": "bet-9001",
+        "status": "VOID",
+        "refundAmount": 5.0
+      }
+    }
+  },
+  "compliance": {
+    "setDepositLimit": {
+      "request": {
+        "playerId": "player-1001",
+        "period": "DAILY",
+        "amount": 100.0,
+        "effectiveFrom": "2026-04-05T00:00:00Z"
+      },
+      "response_example": {
+        "limitId": "limit-1001",
+        "status": "ACTIVE"
+      }
+    },
+    "selfExclude": {
+      "request": {
+        "playerId": "player-1001",
+        "period": "6_MONTHS",
+        "reason": "PLAYER_REQUEST"
+      },
+      "response_example": {
+        "status": "ACTIVE",
+        "sessionAction": "FORCED_LOGOUT"
+      }
+    },
+    "auditQuery": {
+      "request": {
+        "from": "2026-04-01T00:00:00Z",
+        "to": "2026-04-05T23:59:59Z",
+        "playerId": "player-1001",
+        "eventType": "TRANSACTION"
+      },
+      "response_example": {
+        "count": 12,
+        "records": [
+          {
+            "eventId": "aud-1001",
+            "action": "DEPOSIT",
+            "actor": "player01"
+          }
+        ]
+      }
+    }
+  }
+}
