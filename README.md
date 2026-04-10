@@ -44,8 +44,7 @@ End-to-end validation of casino and betting platform workflows:
 
 I help validate transaction-heavy platforms including gaming, betting, and payment systems.
 
-👉 Message me for QA Audit
-
+👉 Message me for QA role
 ---
 
 ## 📦 Full QA System
