@@ -55,4 +55,3 @@ Includes:
 - Sample execution
 - QA guide
 
-👉 Gumroad: https://your-link-here.com
